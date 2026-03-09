@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
 
 <style>
+
 html,body{
 margin:0;
 padding:0;
@@ -14,18 +16,35 @@ width:100%;
 height:100%;
 overflow:hidden;
 }
+
 a-scene{
 width:100vw;
 height:100vh;
 }
+
+#playButton{
+position:absolute;
+bottom:40px;
+left:50%;
+transform:translateX(-50%);
+background:black;
+color:white;
+padding:12px 20px;
+border-radius:30px;
+font-size:16px;
+cursor:pointer;
+}
+
 </style>
+
 </head>
 
 <body>
 
+<div id="playButton">▶ Play Video</div>
+
 <a-scene
 mindar-image="imageTargetSrc: targets.mind;"
-color-space="sRGB"
 embedded
 vr-mode-ui="enabled:false"
 device-orientation-permission-ui="enabled:false">
@@ -45,12 +64,26 @@ webkit-playsinline>
 
 <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-<a-entity mindar-image-target="targetIndex:0">
+<a-entity id="target" mindar-image-target="targetIndex:0">
+
+<!-- glowing frame -->
+
+<a-plane
+id="frame"
+width="0.85"
+height="1.1"
+color="#ffffff"
+opacity="0.25"
+position="0 0 0">
+</a-plane>
+
+<!-- video -->
 
 <a-video
 src="#vid"
-width="1"
-height="0.6">
+width="0.75"
+height="1"
+position="0 0 0.01">
 </a-video>
 
 </a-entity>
@@ -60,9 +93,30 @@ height="0.6">
 <script>
 
 const video = document.querySelector("#vid")
+const frame = document.querySelector("#frame")
 
 document.querySelector("a-scene").addEventListener("targetFound", () => {
+
 video.play()
+
+frame.setAttribute("animation",{
+property:"opacity",
+from:0.1,
+to:0.6,
+dur:800,
+dir:"alternate",
+loop:true
+})
+
+})
+
+document.getElementById("playButton").addEventListener("click", () => {
+
+video.muted=false
+video.play()
+
+document.getElementById("playButton").style.display="none"
+
 })
 
 </script>
