@@ -17,7 +17,7 @@ height:100%;
 overflow:hidden;
 }
 
-/* loading screen */
+/* loading */
 
 #loadingScreen{
 position:absolute;
@@ -43,6 +43,21 @@ width:100%;
 text-align:center;
 color:white;
 font-size:18px;
+z-index:4;
+}
+
+/* scanning frame */
+
+#scanFrame{
+position:absolute;
+top:50%;
+left:50%;
+width:220px;
+height:300px;
+transform:translate(-50%,-50%);
+border:3px dashed white;
+border-radius:10px;
+opacity:0.7;
 z-index:4;
 }
 
@@ -76,6 +91,8 @@ Loading AR Experience...
 Point your camera at the card
 </div>
 
+<div id="scanFrame"></div>
+
 <div id="soundBtn">🔇</div>
 
 <a-scene
@@ -94,6 +111,7 @@ loop
 muted
 playsinline
 webkit-playsinline
+preload="auto"
 crossorigin="anonymous">
 </video>
 
@@ -118,34 +136,44 @@ opacity="0">
 
 <script>
 
-const video=document.getElementById("vid")
-const videoPlane=document.getElementById("videoPlane")
-const loading=document.getElementById("loadingScreen")
+const video = document.getElementById("vid")
+const videoPlane = document.getElementById("videoPlane")
+const loading = document.getElementById("loadingScreen")
+const scanFrame = document.getElementById("scanFrame")
 
-/* remove loading when scene ready */
+/* remove loading */
 
 document.querySelector("a-scene").addEventListener("loaded",()=>{
 loading.style.display="none"
 })
 
-/* fade video in */
+/* card detected */
 
 document.querySelector("a-scene").addEventListener("targetFound",()=>{
 
+scanFrame.style.display="none"
+
+video.currentTime=0
 video.play()
 
 videoPlane.setAttribute("animation",{
 property:"opacity",
 from:0,
 to:1,
-dur:600
+dur:500
 })
 
 })
 
-/* fade out */
+/* card lost */
 
 document.querySelector("a-scene").addEventListener("targetLost",()=>{
+
+scanFrame.style.display="block"
+
+video.pause()
+video.currentTime=0
+video.muted=true
 
 videoPlane.setAttribute("animation",{
 property:"opacity",
@@ -155,7 +183,7 @@ dur:300
 
 })
 
-/* loop video */
+/* smooth loop */
 
 video.addEventListener("ended",()=>{
 
