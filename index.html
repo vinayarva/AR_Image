@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
 </head>
 
 <body>
 
-<a-scene mindar-image="imageTargetSrc: targets.mind;" embedded>
+<a-scene
+mindar-image="imageTargetSrc: targets.mind;"
+color-space="sRGB"
+embedded
+vr-mode-ui="enabled: false"
+device-orientation-permission-ui="enabled: false">
 
 <a-assets>
-<video id="vid" src="video.mp4" autoplay loop muted></video>
+<video id="vid" src="video.mp4" autoplay loop muted playsinline></video>
 </a-assets>
 
 <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
