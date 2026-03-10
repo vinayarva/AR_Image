@@ -111,8 +111,8 @@
     display: flex;
     flex-direction: column;
     z-index: 4;
-    pointer-events: none; /* User can't interact with it */
-    opacity: 0.7; /* Non-annoying, subtle look */
+    pointer-events: none;
+    opacity: 0.7; 
   }
   .screen-brand-main {
     color: white;
@@ -175,7 +175,7 @@
 </div>
 
 <a-scene
-  mindar-image="imageTargetSrc: targets.mind; maxTrack:1; filterMinCF:0.001; filterBeta:0.01;"
+  mindar-image="imageTargetSrc: targets.mind; maxTrack:1; filterMinCF:0.001; filterBeta:0.01; uiScanning: no;"
   embedded
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:false"
@@ -197,14 +197,16 @@
   <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
   <a-entity id="target" mindar-image-target="targetIndex:0">
+    
     <a-video
       id="videoPlane"
       src="#vid"
-      width="0.898"
-      height="0.898"
-      position="0 0.108 0.01"
+      width="0.85"
+      height="0.85"
+      position="0 0.12 0.01"
       opacity="0">
     </a-video>
+
   </a-entity>
 
 </a-scene>
@@ -221,16 +223,14 @@
   const unmutedIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
   const mutedIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
 
-  /* remove loading */
   document.querySelector("a-scene").addEventListener("loaded",()=>{
     loading.style.display="none";
   });
 
-  /* card detected */
   document.querySelector("a-scene").addEventListener("targetFound",()=>{
     scanFrame.style.display="none";
     scanGuide.style.display="none"; 
-    screenBranding.style.display="none"; // Hide branding for a clean view of the AR
+    screenBranding.style.display="none"; 
 
     video.currentTime=0;
     video.play();
@@ -243,11 +243,10 @@
     });
   });
 
-  /* card lost */
   document.querySelector("a-scene").addEventListener("targetLost",()=>{
     scanFrame.style.display="block";
     scanGuide.style.display="block";
-    screenBranding.style.display="flex"; // Show branding again when tracking is lost
+    screenBranding.style.display="flex"; 
 
     video.pause();
     video.currentTime=0;
@@ -261,13 +260,11 @@
     });
   });
 
-  /* smooth loop */
   video.addEventListener("ended",()=>{
     video.currentTime=0;
     video.play();
   });
 
-  /* sound toggle */
   soundBtn.addEventListener("click",()=>{
     if(video.muted){
       video.muted=false;
