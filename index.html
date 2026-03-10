@@ -1,217 +1,282 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
 
 <style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
 
-html,body{
-margin:0;
-padding:0;
-width:100%;
-height:100%;
-overflow:hidden;
-}
+  /* --- Premium Loading Screen & Branding --- */
+  #loadingScreen {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #111;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .spinner {
+    width: 50px; height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* loading */
+  .loading-branding {
+    margin-top: 40px;
+    text-align: center;
+    opacity: 0.8;
+  }
+  .loading-brand-main {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .loading-brand-sub {
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    opacity: 0.7;
+  }
 
-#loadingScreen{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:black;
-color:white;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:20px;
-z-index:5;
-}
+  /* --- Main UI Elements --- */
+  #scanGuide {
+    position: absolute;
+    top: 30px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    padding: 12px 24px;
+    border-radius: 30px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    z-index: 4;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
 
-/* scan guide */
+  #scanFrame {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 250px; height: 320px;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+  }
+  #scanFrame::before, #scanFrame::after, 
+  #scanFrame .bottom-corners::before, #scanFrame .bottom-corners::after {
+    content: ''; position: absolute; width: 40px; height: 40px; border-color: white; border-style: solid;
+  }
+  #scanFrame::before { top: 0; left: 0; border-width: 3px 0 0 3px; }
+  #scanFrame::after { top: 0; right: 0; border-width: 3px 3px 0 0; }
+  #scanFrame .bottom-corners::before { bottom: 0; left: 0; border-width: 0 0 3px 3px; }
+  #scanFrame .bottom-corners::after { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
 
-#scanGuide{
-position:absolute;
-top:20px;
-width:100%;
-text-align:center;
-color:white;
-font-size:18px;
-z-index:4;
-}
+  .scan-line {
+    position: absolute;
+    width: 100%; height: 2px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    animation: scan 2s infinite ease-in-out;
+  }
+  @keyframes scan {
+    0% { top: 10px; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 310px; opacity: 0; }
+  }
 
-/* scanning frame */
+  /* --- Subtle Screen Branding --- */
+  #screenBranding {
+    position: absolute;
+    bottom: 40px; left: 30px;
+    display: flex;
+    flex-direction: column;
+    z-index: 4;
+    pointer-events: none; /* User can't interact with it */
+    opacity: 0.7; /* Non-annoying, subtle look */
+  }
+  .screen-brand-main {
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .screen-brand-sub {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
 
-#scanFrame{
-position:absolute;
-top:50%;
-left:50%;
-width:220px;
-height:300px;
-transform:translate(-50%,-50%);
-border:3px dashed white;
-border-radius:10px;
-opacity:0.7;
-z-index:4;
-}
-
-/* sound button */
-
-#soundBtn{
-position:absolute;
-bottom:40px;
-right:20px;
-background:black;
-color:white;
-padding:12px;
-border-radius:50%;
-font-size:20px;
-cursor:pointer;
-opacity:0.85;
-z-index:4;
-}
-
+  #soundBtn {
+    position: absolute;
+    bottom: 40px; right: 30px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    color: white;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 4;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: transform 0.2s;
+  }
+  #soundBtn:active { transform: scale(0.9); }
 </style>
-
 </head>
 
 <body>
 
 <div id="loadingScreen">
-Loading AR Experience...
+  <div class="spinner"></div>
+  <div>Initializing Camera...</div>
+  <div class="loading-branding">
+    <div class="loading-brand-main">fun2Create</div>
+    <div class="loading-brand-sub">powered by ThriAxis</div>
+  </div>
 </div>
 
-<div id="scanGuide">
-Point your camera at the card
+<div id="scanGuide">Point camera at the photo</div>
+
+<div id="scanFrame">
+  <div class="bottom-corners"></div>
+  <div class="scan-line"></div>
 </div>
 
-<div id="scanFrame"></div>
+<div id="screenBranding">
+  <div class="screen-brand-main">fun2Create</div>
+  <div class="screen-brand-sub">powered by ThriAxis</div>
+</div>
 
-<div id="soundBtn">🔇</div>
+<div id="soundBtn">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+</div>
 
 <a-scene
-mindar-image="imageTargetSrc: targets.mind; maxTrack:1; filterMinCF:0.001; filterBeta:0.01;"
-embedded
-vr-mode-ui="enabled:false"
-device-orientation-permission-ui="enabled:false"
-renderer="colorManagement:true; physicallyCorrectLights:true; logarithmicDepthBuffer:true;">
+  mindar-image="imageTargetSrc: targets.mind; maxTrack:1; filterMinCF:0.001; filterBeta:0.01;"
+  embedded
+  vr-mode-ui="enabled:false"
+  device-orientation-permission-ui="enabled:false"
+  renderer="colorManagement:true; physicallyCorrectLights:true; logarithmicDepthBuffer:true;">
 
-<a-assets>
+  <a-assets>
+    <video
+      id="vid"
+      src="video.mp4"
+      loop
+      muted
+      playsinline
+      webkit-playsinline
+      preload="auto"
+      crossorigin="anonymous">
+    </video>
+  </a-assets>
 
-<video
-id="vid"
-src="video.mp4"
-loop
-muted
-playsinline
-webkit-playsinline
-preload="auto"
-crossorigin="anonymous">
-</video>
+  <a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
 
-</a-assets>
-
-<a-camera position="0 0 0" look-controls="enabled:false"></a-camera>
-
-<a-entity id="target" mindar-image-target="targetIndex:0">
-
-<a-video
-id="videoPlane"
-src="#vid"
-width="0.898"
-height="0.898"
-position="0 0.108 0.01"
-opacity="0">
-</a-video>
-
-</a-entity>
+  <a-entity id="target" mindar-image-target="targetIndex:0">
+    <a-video
+      id="videoPlane"
+      src="#vid"
+      width="0.898"
+      height="0.898"
+      position="0 0.108 0.01"
+      opacity="0">
+    </a-video>
+  </a-entity>
 
 </a-scene>
 
 <script>
+  const video = document.getElementById("vid");
+  const videoPlane = document.getElementById("videoPlane");
+  const loading = document.getElementById("loadingScreen");
+  const scanFrame = document.getElementById("scanFrame");
+  const scanGuide = document.getElementById("scanGuide");
+  const screenBranding = document.getElementById("screenBranding");
+  const soundBtn = document.getElementById("soundBtn");
 
-const video = document.getElementById("vid")
-const videoPlane = document.getElementById("videoPlane")
-const loading = document.getElementById("loadingScreen")
-const scanFrame = document.getElementById("scanFrame")
+  const unmutedIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+  const mutedIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
 
-/* remove loading */
+  /* remove loading */
+  document.querySelector("a-scene").addEventListener("loaded",()=>{
+    loading.style.display="none";
+  });
 
-document.querySelector("a-scene").addEventListener("loaded",()=>{
-loading.style.display="none"
-})
+  /* card detected */
+  document.querySelector("a-scene").addEventListener("targetFound",()=>{
+    scanFrame.style.display="none";
+    scanGuide.style.display="none"; 
+    screenBranding.style.display="none"; // Hide branding for a clean view of the AR
 
-/* card detected */
+    video.currentTime=0;
+    video.play();
 
-document.querySelector("a-scene").addEventListener("targetFound",()=>{
+    videoPlane.setAttribute("animation",{
+      property:"opacity",
+      from:0,
+      to:1,
+      dur:500
+    });
+  });
 
-scanFrame.style.display="none"
+  /* card lost */
+  document.querySelector("a-scene").addEventListener("targetLost",()=>{
+    scanFrame.style.display="block";
+    scanGuide.style.display="block";
+    screenBranding.style.display="flex"; // Show branding again when tracking is lost
 
-video.currentTime=0
-video.play()
+    video.pause();
+    video.currentTime=0;
+    video.muted=true;
+    soundBtn.innerHTML = mutedIcon;
 
-videoPlane.setAttribute("animation",{
-property:"opacity",
-from:0,
-to:1,
-dur:500
-})
+    videoPlane.setAttribute("animation",{
+      property:"opacity",
+      to:0,
+      dur:300
+    });
+  });
 
-})
+  /* smooth loop */
+  video.addEventListener("ended",()=>{
+    video.currentTime=0;
+    video.play();
+  });
 
-/* card lost */
-
-document.querySelector("a-scene").addEventListener("targetLost",()=>{
-
-scanFrame.style.display="block"
-
-video.pause()
-video.currentTime=0
-video.muted=true
-
-videoPlane.setAttribute("animation",{
-property:"opacity",
-to:0,
-dur:300
-})
-
-})
-
-/* smooth loop */
-
-video.addEventListener("ended",()=>{
-
-video.currentTime=0
-video.play()
-
-})
-
-/* sound toggle */
-
-const soundBtn=document.getElementById("soundBtn")
-
-soundBtn.addEventListener("click",()=>{
-
-if(video.muted){
-
-video.muted=false
-soundBtn.innerHTML="🔊"
-
-}else{
-
-video.muted=true
-soundBtn.innerHTML="🔇"
-
-}
-
-})
-
+  /* sound toggle */
+  soundBtn.addEventListener("click",()=>{
+    if(video.muted){
+      video.muted=false;
+      soundBtn.innerHTML = unmutedIcon;
+    } else {
+      video.muted=true;
+      soundBtn.innerHTML = mutedIcon;
+    }
+  });
 </script>
 
 </body>
